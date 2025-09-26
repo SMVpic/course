@@ -24,6 +24,13 @@ app.get('/users/new', (req, res) => {
     res.view('../views/users/new.pug')
 })
 
+/*
+app.get('/users/:id', (req, res) => {
+    res.type('html')
+    res.send(`<h1>${req.params.id}</h1>`)
+  })
+*/
+
 /**
   app.post('/users', (req, res) => {
     const user = {
