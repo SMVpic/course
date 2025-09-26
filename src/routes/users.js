@@ -21,13 +21,8 @@ const state = {
 }
 
 app.get('/users/new', (req, res) => {
-    res.view('views/users/new.pug')
+    res.view('../views/users/new.pug')
 })
-
-app.get('/users/:id', (req, res) => {
-    res.type('html')
-    res.send(`<h1>${req.params.id}</h1>`)
-  })
 
 /**
   app.post('/users', (req, res) => {
@@ -49,9 +44,9 @@ app.post('/users', {
     attachValidation: true,
     schema: {
         body: yup.object({
-            name: yup.string().min(2, 'Имя должно быть не меньше двух символов').required(),
-            email: yup.string().email().required(),
-            password: yup.string().min(5, 'Пароль должен быть не меньше пяти символов').required(),
+            name: yup.string().min(2, 'Имя должно быть не меньше двух символов'),
+            email: yup.string().email(),
+            password: yup.string().min(5, 'Пароль должен быть не меньше пяти символов'),
             passwordConfirmation: yup.string().min(5),
         }),
     },
@@ -79,7 +74,7 @@ app.post('/users', {
             users:state.users
         }
 
-        res.view('views/users/new.pug', data)
+        res.view('../views/users/new.pug', data)
         return
     }
 
@@ -96,7 +91,7 @@ app.post('/users', {
 
 app.get('/users', (req, res) => {
     //res.send(state.users)
-    res.view('views/users/new.pug', {users:state.users})
+    res.view('../views/users/new.pug', {users:state.users})
 })
 
 app.listen({port}, () => {
