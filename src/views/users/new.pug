@@ -1,7 +1,21 @@
-html
-  body
-    if error
+extends ../index.pug
+
+block content
+    //if error
       p= error.message
+
+    if flash.success
+      each message in flash.success
+        .alert.alert-success
+          = message
+    if flash.warning 
+      each message in flash.warning 
+        .alert.alert-warning 
+          = message
+    if flash.info 
+      each message in flash.info 
+        .alert.alert-info 
+          = message
 
       
     form(action = '/users', method = 'post')
@@ -17,8 +31,8 @@ html
       div 
         label Подтверждение пароля:
           input(type = 'password', name ='passwordConfirmation', required = 'true')
-      input(type = 'submit', value = 'Зарегестрировать')
+      input(type = 'submit', value = 'Зарегестрироваться')
     div
-      each user in users
+      //each user in users
        h2= user.name 
        p= user.email 

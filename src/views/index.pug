@@ -1,0 +1,29 @@
+doctype html 
+html(lang="ru")
+  head 
+    meta(charset='utf-8')
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm", crossorigin="anonymous")
+  body.d-flex.flex-column.min-vh-100.bg-light
+    nav.navbar.navbar-expand-lg.bg-white
+      .container 
+        ul.navbar-nav.justify-content-between
+          li.nav-item
+            a(href='/users') Пользователи
+          li.nav-item
+            a(href='/articles') Посты
+        div.navbar-nav.justify-content-between
+          button.nav-item 
+            a(href='/users/new') Зарегистрироваться
+          button.nav-item 
+            a(href='/login') Войти
+    
+    
+    
+    h6.d-flex.justify-content-center.text-center.mt-4
+      ='Это мой тестовый проект, в процессе разработки которого я знакомлюсь с различными функциями и инструментами веб разработки./n В данный момент проект выступает в формате мини блога. Посмотрим к чему это приведет.'
+
+    block content
+
+  footer
+  a(href='https://t.me/Smvpic') Телеграм    

@@ -1,0 +1,25 @@
+extends ../index.pug
+
+block content
+
+    if flash.success
+      each message in flash.success
+        .alert.alert-success
+          = message
+    if flash.warning 
+      each message in flash.warning 
+        .alert.alert-warning 
+          = message
+    if flash.info 
+      each message in flash.info 
+        .alert.alert-info 
+          = message
+    
+    if users.length === 0
+        p Пока курсов нет
+    else  
+        each user in users
+            div  
+                h2
+                    a(href=('/users', {id:user.id})) #{user.name}
+                p #{user.email}

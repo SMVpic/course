@@ -1,35 +1,30 @@
-import fastify from "fastify"  
-import view from '@fastify/view'
-import formbody from '@fastify/formbody'
-import pug from 'pug'
+import bcrypt from 'bcrypt'
 import yup from 'yup'
+import formbody from '@fastify/formbody'
 
-const app = fastify()
-const port = 3000
 
-await app.register(formbody)
-app.register(view, { engine: { pug } })
+export default async function(app, opts) {
 
 const state = {
     users: [
-        {
+        {   
+            id: 1,
             name: 'one',
             email: 'email@mail.com',
-            password: 'pass'
+            passwordDigest: '<bcrypt-hash>'
         }
     ]
 }
 
-app.get('/users/new', (req, res) => {
-    res.view('../views/users/new.pug')
-})
+let nextUserId = 1
 
-/*
-app.get('/users/:id', (req, res) => {
-    res.type('html')
-    res.send(`<h1>${req.params.id}</h1>`)
-  })
-*/
+function requireAuth(req, res) {
+    if (!req.session || !req.session.userId) {
+        res.code(401).send({error: 'Вы не авторизованы'})
+        return false
+    }
+    return true
+}
 
 /**
   app.post('/users', (req, res) => {
@@ -60,7 +55,7 @@ app.post('/users', {
     validatorCompiler: ({schema, method, url, httpPart}) => (data) => {
         if (data.password != data.passwordConfirmation) {
             return {
-                error: Error('Password confirmation is not equal the password'),
+                error: Error('Пароли должны совпадать'),
             }
         }
         try {
@@ -70,37 +65,111 @@ app.post('/users', {
         catch (e) {
             return {error: e}
         }
-    },
-}, (req, res) => {
-    const {name, email, password, passwordConfirmation} = req.body
+    }
+}, async (req, res) => {
+    console.log('POST /users called with body:', req.body);
+    const {
+        name = '',
+        email = '',
+        password = '',
+        passwordConfirmation = ''
+    } = req.body || {}
 
     if(req.validationError) {
+        req.flash('warning', req.validationError.message);
+        //console.log('Flash before render:', res.flash('warning', req.validationError.message));
         const data = {
             name, email, password, passwordConfirmation,
-            error: req.validationError,
+            flash: res.flash(),
             users:state.users
         }
-
-        res.view('../views/users/new.pug', data)
+        //console.log('Flash before render:', res.flash());
+        res.view('users/new.pug', data)
         return
     }
 
-    const user = {
-        name,
-        email,
-        password,
+    //проверить, что пользователь с таким email еще не зарегистрирован
+    if(state.users.find(u => u.email === email)) {
+        res.code(500).send({message:'Пользователь с таким email уже  зарегистрирован'})
+        //res.flash('warning', 'Пользователь с таким email уже  зарегистрирован')
+        return
     }
 
-    state.users.push(user)
+    try {
+        const passwordDigest = await bcrypt.hash(password, 10);
+        const user = {
+          id: nextUserId++,
+          name,
+          email,
+          passwordDigest,
+        };
+    
+        state.users.push(user);
+        req.session.userId = user.id;
+        //console.log('Session after setting userId:', req.session);
+    
+        // Проверяем тип сообщения
+    
+       // console.log('Flash message to set:', flashMessage, 'Type:', typeof flashMessage);
+       req.flash('success', 'Пользователь зарегистрирован')
+        //console.log('Flash messages set:', req.flash('success'));
+    
+        return res.redirect('/articles')
+      } catch (e) {
+        console.error('Error in POST /users:', e)
+        //req.flash('warning', 'Ошибка регистрации')
+        res.code(500).send({message:'Ошибка регистрации'})
+        //res.code(500)
+        return
+      }
+    });
 
-    res.redirect('/users')
+//Логин пользователя
+app.post('/login', async (req, res) => {
+    const {
+    email= '', 
+    password= ''
+    } = req.body || {}
+    if (!email || !password) { //если не введены пароль и почта
+        req.flash('warning', "Почта и пароль обязательны")
+        res.code(400)
+        return
+    }
+
+    const user = state.users.find(u => u.email === email)
+    if (!user) {//поиск пользователя по почте 
+        req.flash('warning', "Нет пользователя с такой почтой")
+        //res.code(400)
+        return
+    }
+
+    const ok = await bcrypt.compare(password, user.passwordDigest) //сравнение введенного пароля и пароля в базе
+    if (!ok) {
+        res.code(401).send({error:'неверный пароль'})
+        return
+    }
+
+    //Запоминаем пользователя в сессии
+    req.session.userId = user.id
+    req.flash('success', 'Вы вошли')
+    res.redirect('/articles')
 })
 
+//Форма входа 
+app.get('/login', (req, res) => {
+    res.view('users/entry.pug')
+})
+
+//Список пользователей
 app.get('/users', (req, res) => {
     //res.send(state.users)
-    res.view('../views/users/new.pug', {users:state.users})
+    const data = {flash: res.flash(), users:state.users}
+    res.view('users/index.pug', data)
 })
 
-app.listen({port}, () => {
-    console.log(`Example app listening on port ${port}`)
+//Форма регистрации пользователя
+app.get('/users/new', (req, res) => {
+    const data = {flash: res.flash(),}
+    res.view('users/new.pug', data)
 })
+}

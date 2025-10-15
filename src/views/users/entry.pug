@@ -1,0 +1,20 @@
+extends ../index.pug
+
+block content
+    
+    //if error
+      p= error.message
+
+      
+    form(action = '/login', method = 'post')
+      div 
+        label Имя:
+          input(type = 'text', name = 'name')
+      div 
+        label Email: 
+          input(type = 'email', name = 'email', required = 'true')
+      div 
+        label Пароль:
+          input(type = 'password', name = 'password', required = 'true')
+      input(type = 'submit', value = 'Войти')
+    div

@@ -1,0 +1,15 @@
+html 
+  body 
+    if error 
+      p= error.message 
+
+
+    form(action = route('editArticle', {id:editThisArticle.id}), method = 'post')
+      div 
+        label Название курса:
+          input(type = 'text', name = 'articleName', value = articleName, required = true)
+      div 
+        label Описание курса:
+          input(type = 'text', name = 'description', value = description, required = true)
+      input(type = 'submit', value = 'Обновить')
+    div 

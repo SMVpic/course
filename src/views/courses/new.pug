@@ -1,18 +1,31 @@
-html 
-  body 
-    if error 
-      p= error.message 
+extends ../index.pug
 
+block content
+    //if error
+      p= error.message
 
-    form(action ='/courses', method = 'post')
+    if flash.success
+      each message in flash.success
+        .alert.alert-success
+          = message
+    if flash.warning 
+      each message in flash.warning 
+        .alert.alert-warning 
+          = message
+    if flash.info 
+      each message in flash.info 
+        .alert.alert-info 
+          = message
+
+    form(action = route('articles'), method = 'post')
       div 
         label Название курса:
-          input(type = 'text', name = 'courseName', value = courseName, required = true)
+          input(type = 'text', name = 'articleName', value = articleName, required = true)
       div 
         label Описание курса:
           input(type = 'text', name = 'description', value = description, required = true)
       input(type = 'submit', value = 'Создать')
     div 
-      each course in courses 
+    //  each course in courses 
         h2= course.courseName 
         p= course.description

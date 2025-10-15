@@ -1,0 +1,16 @@
+extends ../index.pug
+
+block content
+    if flash.success
+      each message in flash.success
+        .alert.alert-success
+          = message
+    
+    if articles.length === 0
+        p Пока курсов нет
+    else  
+        each article in articles
+            div  
+                h2
+                    a(href=route('thisArticle', {id:article.id})) #{article.articleName}
+                p #{article.description}
