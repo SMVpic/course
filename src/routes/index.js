@@ -22,7 +22,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const route = (name, placeholderValues) => app.reverse(name, placeholderValues)
 
-const db = new sqlite3.Database(':memory:')
+const db = new sqlite3.Database('../db/database.sqlite')
 
 const prepareDatabase = () => {
 
