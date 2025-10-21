@@ -20,15 +20,16 @@ export default async function getApp() {
 const app = fastify({exposeHeadRoutes: false})
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const dbPath = path.join(__dirname, '../db/database.sqlite')
 const route = (name, placeholderValues) => app.reverse(name, placeholderValues)
 
-const db = new sqlite3.Database('../db/database.sqlite')
+const db = new sqlite3.Database(dbPath)
 
 const prepareDatabase = () => {
 
 db.serialize(() => {
     db.run(`
-        CREATE TABLE articles (
+        CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY,
             articleName VARCHAR(255) NOT NULL,
             description TEXT
@@ -36,7 +37,7 @@ db.serialize(() => {
         `)
     
     db.run(`
-        CREATE TABLE users (
+        CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             email VARCHAR(255) NOT NULL,
