@@ -123,6 +123,7 @@ app.post('/users', {
 
         const stmt = db.prepare('INSERT INTO users(name, email, passwordDigest) VALUES (?,?,?)')
         stmt.run([user.name, user.email, user.passwordDigest], function (err) {
+            console.error('❌ Ошибка вставки в SQLite:', err)
             if(err) {
                 req.flash('warning', 'Ошибка регистрации')
                 res.code(500)

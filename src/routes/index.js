@@ -24,7 +24,7 @@ const dbPath = path.join(__dirname, '../db/database.sqlite')
 const route = (name, placeholderValues) => app.reverse(name, placeholderValues)
 
 const db = new sqlite3.Database(dbPath)
-
+console.log('📂 Подключение к SQLite:', dbPath)
 const prepareDatabase = () => {
 
 db.serialize(() => {
