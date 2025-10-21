@@ -1,9 +1,9 @@
-export default async function(app,opts) {
+export default async function(app,db) {
     //главная страница
     app.get('/', (req, res) => {
         const templateData = {
             flash: res.flash(),
           };
-        res.view ('../views/index',templateData)
+        res.view ('../views/courses/about',templateData)
     })
 }

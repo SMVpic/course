@@ -17,22 +17,26 @@ block content
         .alert.alert-info 
           = message
 
+    main.container.d-flex.flex-column.align-items-center.mt-auto.mb-auto
+      //div.text-center 
+        h4= 'Зарегистрируйтесь, чтоб просматривать и писать посты'
+
+      form.form-signin(action = '/users', method = 'post')
+        h1.h3.mb-3.fw-normal= 'Регистрация'
+        div 
+          label.form-label Имя:
+            input.form-control(type = 'text', name = 'name')
+        div 
+          label.form-label Email: 
+            input.form-control(type = 'email', name = 'email', required = 'true')
+        div 
+          label.form-label Пароль:
+            input.form-control(type = 'password', name = 'password', required = 'true')
+        div 
+          label.form-label Подтверждение пароля:
+            input.form-control(type = 'password', name ='passwordConfirmation', required = 'true')
+        input.btn.btn-primary(type = 'submit', value = 'Зарегестрироваться')
       
-    form(action = '/users', method = 'post')
-      div 
-        label Имя:
-          input(type = 'text', name = 'name')
-      div 
-        label Email: 
-          input(type = 'email', name = 'email', required = 'true')
-      div 
-        label Пароль:
-          input(type = 'password', name = 'password', required = 'true')
-      div 
-        label Подтверждение пароля:
-          input(type = 'password', name ='passwordConfirmation', required = 'true')
-      input(type = 'submit', value = 'Зарегестрироваться')
-    div
       //each user in users
        h2= user.name 
        p= user.email 

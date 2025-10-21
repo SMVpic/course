@@ -1,6 +1,3 @@
-console.log('🚀 src/routes/index.js загружается');
-console.log('typeof module:', typeof module);
-console.log('export default type:', typeof (() => {}));
 import fastify from "fastify"  
 import bcrypt from 'bcrypt'
 import yup from 'yup'
@@ -11,21 +8,66 @@ import pug from 'pug'
 import session from '@fastify/session'
 import fastifyCookie from '@fastify/cookie'
 import {plugin as fastifyReverseRoutes} from 'fastify-reverse-routes'
-
+import sqlite3 from 'sqlite3'
 import users from './users.js'
 import articles from './articles.js'
 import root from './root.js'
 import { fileURLToPath } from 'url'
 import path from 'path'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 export default async function getApp() {
-const app = fastify({exposeHeadRoutes: true})
-
+const app = fastify({exposeHeadRoutes: false})
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 const route = (name, placeholderValues) => app.reverse(name, placeholderValues)
 
+const db = new sqlite3.Database(':memory:')
+
+const prepareDatabase = () => {
+
+db.serialize(() => {
+    db.run(`
+        CREATE TABLE articles (
+            id INTEGER PRIMARY KEY,
+            articleName VARCHAR(255) NOT NULL,
+            description TEXT
+        );
+        `)
+    
+    db.run(`
+        CREATE TABLE users (
+            id INTEGER PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            passwordDigest VARCHAR(255) NOT NULL
+        )
+    `)
+})
+
+const articles = [
+    {id:1, articleName: 'Тест', description: 'Это мой первый тестовый пост добавленный в БД'}
+]
+
+const users = [
+    {id:1, name:'Михаил', email: 'email@gmail.com', passwordDigest: 'admin'}
+]
+
+const stmtArticles = db.prepare('INSERT INTO articles VALUES (?, ?, ?)')
+
+articles.forEach((article) => {
+stmtArticles.run(article.id, article.articleName, article.description)
+})
+stmtArticles.finalize()
+
+const stmtUsers = db.prepare('INSERT INTO users VALUES (?, ?, ?, ?)')
+
+users.forEach((user) => {
+    stmtUsers.run(user.id, user.name, user.email, user.passwordDigest)
+})
+stmtUsers.finalize()
+}
+prepareDatabase()
 
 await app.register(fastifyCookie)
 await app.register(session, {
@@ -33,9 +75,7 @@ await app.register(session, {
     cookie: {secure: false}, //true только для HTTPS
 })
 await app.register(formbody) //для чтения application/x-www-form-urlencoded
-await app.register(users);
-await app.register(articles);
-await app.register(root);
+
 await app.register(fastifyReverseRoutes)
 await app.register(view, {
     engine: { pug },
@@ -48,9 +88,9 @@ await app.register(view, {
  console.log('Session plugin registered'); // Отладка
 
 console.log('Flash plugin registered');
-
- 
-
+users(app,db)
+articles(app,db)
+root(app,db)
  return app
 
 }

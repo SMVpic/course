@@ -3,27 +3,23 @@ html(lang="ru")
   head 
     meta(charset='utf-8')
     meta(name="viewport", content="width=device-width, initial-scale=1")
-    link(href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm", crossorigin="anonymous")
+    link(href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css", rel="stylesheet", integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH", crossorigin="anonymous")
   body.d-flex.flex-column.min-vh-100.bg-light
-    nav.navbar.navbar-expand-lg.bg-white
-      .container 
+    nav.navbar.navbar-expand-lg.navbar-light.bg-white
+      div.container.justify-content-between
         ul.navbar-nav.justify-content-between
-          li.nav-item
-            a(href='/users') Пользователи
-          li.nav-item
-            a(href='/articles') Посты
-        div.navbar-nav.justify-content-between
-          button.nav-item 
-            a(href='/users/new') Зарегистрироваться
-          button.nav-item 
-            a(href='/login') Войти
-    
-    
-    
-    h6.d-flex.justify-content-center.text-center.mt-4
-      ='Это мой тестовый проект, в процессе разработки которого я знакомлюсь с различными функциями и инструментами веб разработки./n В данный момент проект выступает в формате мини блога. Посмотрим к чему это приведет.'
+          li
+            a.nav-link.link-dark(href='/users') Пользователи
+          li
+            a.nav-link.link-dark(href='/articles') Посты
+        div.navbar-nav
+          a.nav-item.me-2.btn.btn-primary(href='/users/new') Зарегистрироваться
+          a.nav-item.btn.btn-outline-primary.align-items-center(href='/login') Войти
+            
+
 
     block content
 
-  footer
-  a(href='https://t.me/Smvpic') Телеграм    
+    footer.bg-primary.text-light.d-flex.justify-content-center.align-items-center
+        a.text-center.w-50.mt-3.mb-3.nav-link.text-white(href='https://t.me/Smvpic')
+         ='SMVpic'    

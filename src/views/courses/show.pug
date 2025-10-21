@@ -1,5 +1,8 @@
-html 
-    body 
+extends ../index.pug
+
+block content
+    main.container.d-flex.flex-column.align-items-center.mt-auto.mb-auto
+
         div     
-            h2 #{oneArticle.articleName}
-            p #{oneArticle.description}
+            h2 #{article.articleName}
+            p #{article.description}

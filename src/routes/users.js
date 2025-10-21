@@ -1,11 +1,12 @@
 import bcrypt from 'bcrypt'
 import yup from 'yup'
 import formbody from '@fastify/formbody'
+import encrypt from './encrypt.js'
 
 
-export default async function(app, opts) {
+export default (app, db) => {
 
-const state = {
+/**const state = {
     users: [
         {   
             id: 1,
@@ -14,9 +15,10 @@ const state = {
             passwordDigest: '<bcrypt-hash>'
         }
     ]
-}
+}*/
 
-let nextUserId = 1
+//let nextUserId = 1
+
 
 function requireAuth(req, res) {
     if (!req.session || !req.session.userId) {
@@ -66,7 +68,7 @@ app.post('/users', {
             return {error: e}
         }
     }
-}, async (req, res) => {
+},  (req, res) => {
     console.log('POST /users called with body:', req.body);
     const {
         name = '',
@@ -81,7 +83,7 @@ app.post('/users', {
         const data = {
             name, email, password, passwordConfirmation,
             flash: res.flash(),
-            users:state.users
+            //users:state.users
         }
         //console.log('Flash before render:', res.flash());
         res.view('users/new.pug', data)
@@ -89,40 +91,63 @@ app.post('/users', {
     }
 
     //проверить, что пользователь с таким email еще не зарегистрирован
-    if(state.users.find(u => u.email === email)) {
-        res.code(500).send({message:'Пользователь с таким email уже  зарегистрирован'})
+    //if(users.find(u => u.email === email)) {
+        //res.code(500).send({message:'Пользователь с таким email уже  зарегистрирован'})
         //res.flash('warning', 'Пользователь с таким email уже  зарегистрирован')
-        return
-    }
-
-    try {
-        const passwordDigest = await bcrypt.hash(password, 10);
+       // return
+   // }
+        
+        db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, data) => {
+            console.log([email])
+            console.log(err)
+            console.log(data)
+           /** if(err) {
+                req.flash('warning', 'Ошибка запроса к базе данных')
+                res.redirect('/users/new')
+                return
+            }*/ 
+            if(data){
+                req.flash('warning', 'Пользователь с таким email уже зарегистрирован')
+                res.redirect('/users/new')
+                return
+            }
+        
+    
+        //const passwordDigest = await bcrypt.hash(password, 10);
+        const passwordDigest = encrypt(password)
         const user = {
-          id: nextUserId++,
           name,
           email,
           passwordDigest,
         };
-    
-        state.users.push(user);
-        req.session.userId = user.id;
+
+        const stmt = db.prepare('INSERT INTO users(name, email, passwordDigest) VALUES (?,?,?)')
+        stmt.run([user.name, user.email, user.passwordDigest], function (err) {
+            if(err) {
+                req.flash('warning', 'Ошибка регистрации')
+                res.code(500)
+                return
+            }
+            req.session.userId = this.lastID
+            req.flash('success', 'Пользователь зарегистрирован')
+            res.redirect('/articles')
+            return
+        })
+    })
+       // state.users.push(user);
+        //req.session.userId = user.id
         //console.log('Session after setting userId:', req.session);
     
         // Проверяем тип сообщения
     
        // console.log('Flash message to set:', flashMessage, 'Type:', typeof flashMessage);
-       req.flash('success', 'Пользователь зарегистрирован')
+       //req.flash('success', 'Пользователь зарегистрирован')
         //console.log('Flash messages set:', req.flash('success'));
     
-        return res.redirect('/articles')
-      } catch (e) {
-        console.error('Error in POST /users:', e)
-        //req.flash('warning', 'Ошибка регистрации')
-        res.code(500).send({message:'Ошибка регистрации'})
-        //res.code(500)
-        return
-      }
+        //return res.redirect('/articles')
+     
     });
+
 
 //Логин пользователя
 app.post('/login', async (req, res) => {
@@ -143,13 +168,22 @@ app.post('/login', async (req, res) => {
         return
     }
 
-    const ok = await bcrypt.compare(password, user.passwordDigest) //сравнение введенного пароля и пароля в базе
+    /*const ok = await bcrypt.compare(password, user.passwordDigest) //сравнение введенного пароля и пароля в базе
     if (!ok) {
         res.code(401).send({error:'неверный пароль'})
         return
     }
 
     //Запоминаем пользователя в сессии
+    req.session.userId = user.id
+    req.flash('success', 'Вы вошли')
+    res.redirect('/articles')
+})
+*/
+if (passwordDigest !== encrypt(password)) {
+    res.code(401).send({error:'неверный пароль'})
+        return
+}
     req.session.userId = user.id
     req.flash('success', 'Вы вошли')
     res.redirect('/articles')
