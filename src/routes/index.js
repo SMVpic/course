@@ -20,10 +20,10 @@ export default async function getApp() {
 const app = fastify({exposeHeadRoutes: false})
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const dbPath = path.join(process.cwd(), 'src/db/database.sqlite')
+
 const route = (name, placeholderValues) => app.reverse(name, placeholderValues)
 
-const db = new sqlite3.Database(dbPath)
+const db = new sqlite3.Database('./db/database.sqlite')
 console.log('📂 Подключение к SQLite:', dbPath)
 const prepareDatabase = () => {
 
