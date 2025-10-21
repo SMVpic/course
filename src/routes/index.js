@@ -20,7 +20,7 @@ export default async function getApp() {
 const app = fastify({exposeHeadRoutes: false})
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-const dbPath = path.join(__dirname, '../db/database.sqlite')
+const dbPath = path.join(__dirname, '../../db/database.sqlite')
 const route = (name, placeholderValues) => app.reverse(name, placeholderValues)
 
 const db = new sqlite3.Database(dbPath)
