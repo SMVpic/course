@@ -23,9 +23,14 @@ const __dirname = path.dirname(__filename)
 
 const route = (name, placeholderValues) => app.reverse(name, placeholderValues)
 
-const db = new sqlite3.Database('../../db/database.sqlite')
-const dbPath = path.join(__dirname, '../../db/database.sqlite')
+const isProduction = process.env.RENDER === 'true'
+const dbPath = isProduction ? ':memory:' : path.join(__dirname, '../db/database.sqlite')
+
+console.log('🌍 Режим:', isProduction ? 'Render (Production)' : 'Локальный')
 console.log('📂 Подключение к SQLite:', dbPath)
+
+const db = new sqlite3.Database(dbPath)
+
 const prepareDatabase = () => {
 
 db.serialize(() => {
