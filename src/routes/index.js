@@ -24,7 +24,7 @@ const __dirname = path.dirname(__filename)
 const route = (name, placeholderValues) => app.reverse(name, placeholderValues)
 
 const isProduction = process.env.RENDER === 'true'
-const dbPath = isProduction ? ':memory:' : path.join(__dirname, '../db/database.sqlite')
+const dbPath = isProduction ? path.join(__dirname, '../db/database.sqlite') : ':memory:'
 
 console.log('🌍 Режим:', isProduction ? 'Render (Production)' : 'Локальный')
 console.log('📂 Подключение к SQLite:', dbPath)

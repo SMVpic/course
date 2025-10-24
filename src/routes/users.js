@@ -151,23 +151,48 @@ app.post('/users', {
 
 
 //Логин пользователя
-app.post('/login', async (req, res) => {
+app.post('/login', (req, res) => {
     const {
     email= '', 
     password= ''
     } = req.body || {}
     if (!email || !password) { //если не введены пароль и почта
         req.flash('warning', "Почта и пароль обязательны")
-        res.code(400)
+        res.redirect('/login') 
         return
     }
 
-    const user = state.users.find(u => u.email === email)
-    if (!user) {//поиск пользователя по почте 
-        req.flash('warning', "Нет пользователя с такой почтой")
+    db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, data) => {
+        if (err) {
+            console.error('DB Error:', err)
+            req.flash('warning', 'Ошибка сервера')
+            res.redirect('/login')
+            return
+        }
+
+        if(!data) {
+            req.flash('warning', 'Нет пользователя с такой почтой')
+            res.redirect('/login')
+            return
+        }
+        if (data.passwordDigest !== encrypt(password)) {
+            req.flash('warning', 'Неверный пароль')
+            res.redirect('/login')
+            return
+        }
+            req.session.userId = data.id
+            req.flash('success', 'Вы вошли')
+            res.redirect('/articles')
+
+    })
+
+
+  //  const user = state.users.find(u => u.email === email)
+    //if (!user) {//поиск пользователя по почте 
+      //  req.flash('warning', "Нет пользователя с такой почтой")
         //res.code(400)
-        return
-    }
+        //return
+    //}
 
     /*const ok = await bcrypt.compare(password, user.passwordDigest) //сравнение введенного пароля и пароля в базе
     if (!ok) {
@@ -181,18 +206,13 @@ app.post('/login', async (req, res) => {
     res.redirect('/articles')
 })
 */
-if (passwordDigest !== encrypt(password)) {
-    res.code(401).send({error:'неверный пароль'})
-        return
-}
-    req.session.userId = user.id
-    req.flash('success', 'Вы вошли')
-    res.redirect('/articles')
+
 })
 
 //Форма входа 
 app.get('/login', (req, res) => {
-    res.view('users/entry.pug')
+    const data = {flash: res.flash(),}
+    res.view('users/entry.pug', data)
 })
 
 //Список пользователей

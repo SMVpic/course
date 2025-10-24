@@ -1,16 +1,33 @@
 extends ../index.pug
 
 block content
+    
         if flash && flash.success
         each message in flash
             .alert.alert-success
                 = message
+        
+        main.container.d-flex.flex-column.mb-auto.align-items-center.border-start.border-end.border-dark.border-1.vh-100.p-0
+            div.border-bottom.border-dark.border-1.w-100 
+                h1.mt-3.mb-3.text-center= 'Список статей'
 
-        if articles.length === 0
-            p Пока статей нет
-        else  
-            each article in articles
-                div  
-                    h2
-                        a(href=route('article', {id:article.id})) #{article.articleName}
-                    p #{article.description}
+            div.w-100.mt-3.border-bottom.border-dark.border-1.d-flex.flex-column.align-items-center
+                div.w-50.mb-3
+                    form.form-signin(action = route('articlesList'), method = 'post')
+                        div 
+                            label.form-label.w-100 Заголовок поста:
+                                input.form-control(type = 'text', name = 'articleName', value = articleName, required = true)
+                        div 
+                            label.form-label.w-100 Текст поста:
+                                input.form-control(type = 'text', name = 'description', value = description, required = true)
+                        input.btn.btn-primary(type = 'submit', value = 'Создать')
+
+            if articles.length === 0
+                p Пока статей нет
+            else  
+                each article in articles
+                    div.border-bottom.border-dark.border-1.w-100.d-flex.flex-column.align-items-center
+                        div.w-50.mb-2.mt-2
+                            h2.blog-post-title
+                                a(href=route('article', {id:article.id})) #{article.articleName}
+                            p #{article.description}

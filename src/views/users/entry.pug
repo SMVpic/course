@@ -1,20 +1,34 @@
 extends ../index.pug
 
 block content
-    
-    //if error
-      p= error.message
 
+    if flash.success
+      each message in flash.success
+        .alert.alert-success
+          = message
+    if flash.warning 
+      each message in flash.warning 
+        .alert.alert-warning 
+          = message
+    if flash.info 
+      each message in flash.info 
+        .alert.alert-info 
+          = message
       
-    form(action = '/login', method = 'post')
-      div 
-        label Имя:
-          input(type = 'text', name = 'name')
-      div 
-        label Email: 
-          input(type = 'email', name = 'email', required = 'true')
-      div 
-        label Пароль:
-          input(type = 'password', name = 'password', required = 'true')
-      input(type = 'submit', value = 'Войти')
-    div
+      //if error
+        p= error.message
+
+    main.container.d-flex.flex-column.align-items-center.mt-auto.mb-auto
+
+      form.form-signin(action = '/login', method = 'post')
+        h1.h3.mb-3.fw-normal= 'Войти'
+        div 
+          label.form-label Имя:
+            input.form-control(type = 'text', name = 'name')
+        div 
+          label.form-label Email: 
+            input.form-control(type = 'email', name = 'email', required = 'true')
+        div 
+          label.form-label Пароль:
+            input.form-control(type = 'password', name = 'password', required = 'true')
+        input.btn.btn-primary(type = 'submit', value = 'Войти')

@@ -23,6 +23,7 @@ await app.register(view, {
 */
 
  
+import { ValidationError } from 'ajv'
 import bcrypt from 'bcrypt'
 import yup from 'yup'
 export default (app, db) => {
@@ -79,6 +80,60 @@ app.get('/articles/new', {name: 'newArticles'}, (req, res) => {
   if (!requireAuth(req, res)) return
   res.view('courses/new', {articles:state.articles})
 })
+
+app.post('/articles', {
+  attachValidation: true,
+  schema: {
+    body: yup.object({
+      articleName: yup.string().required(),
+      description: yup.string().min(10).required()
+    }),
+  },
+  validatorCompiler: ({schema, method, url, httpPart}) => (data) => {
+    try {
+      const result = schema.validateSync(data)
+      return {value: result}
+    }
+    catch(e) {
+      return {error: e}
+    }
+  }
+}, (req, res) => {
+  const {
+    articleName = '', 
+    description = ''
+  } = req.body
+
+  if(req.validationError) {
+    req.flash('warning', req.validationError.message)
+    const data = {
+      articleName, description,
+      flash:res.flash()
+    }
+    res.view('courses/index.pug', data)
+    return
+  }
+  
+  const article = {
+    articleName,
+    description
+  }
+
+  const stmt = db.prepare('INSERT INTO articles(articleName, description) VALUES (?,?)')
+  stmt.run([article.articleName, article.description], function(err) {
+    console.error('❌ Ошибка вставки в SQLite:', err)
+    if(err){
+      req.flash('warning', 'Ошибка создания')
+      res.code(500)
+      return
+    }
+    
+    req.flash('success', 'Пост создан')
+    res.redirect('/articles')
+    return
+  }) 
+})
+
 /** 
 //Создание нового поста
 app.post('/articles', {

@@ -17,16 +17,17 @@ block content
         .alert.alert-info 
           = message
 
-    form.form-signin(action = route('articles'), method = 'post')
-      h1.h3.mb-3.fw-normal= 'Создать пост'
-        div 
-          label.form-label Название курса:
-            input.form-control(type = 'text', name = 'articleName', value = articleName, required = true)
-        div 
-          label.form-label Описание курса:
-            input.form-control(type = 'text', name = 'description', value = description, required = true)
-        input.btn.btn-primary(type = 'submit', value = 'Создать')
-      div 
+    main.container.d-flex.flex-column.align-items-center.mt-auto.mb-auto
+
+      form.form-signin(action = route('articles'), method = 'post')
+        h1.h3.mb-3.fw-normal= 'Создать пост'
+          div 
+            label.form-label Заголовок поста:
+              input.form-control(type = 'text', name = 'articleName', value = articleName, required = true)
+          div 
+            label.form-label Текст поста:
+              input.form-control(type = 'text', name = 'description', value = description, required = true)
+          input.btn.btn-primary(type = 'submit', value = 'Создать')
       //  each course in courses 
           h2= course.courseName 
           p= course.description
